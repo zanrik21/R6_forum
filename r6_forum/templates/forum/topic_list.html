@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">{{ category.name }}</div>
+
+        {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'topic_create' %}" class="btn">Нова тема</a>
+        {% endif %}
+    </div>
+
+    {% if topics %}
+        <ul class="list">
+            {% for t in topics %}
+                <li>
+                    <a href="{% url 'topic_detail' t.pk %}">{{ t.title }}</a><br>
+                    <span class="muted">
+                        Автор:
+                        <a href="{% url 'profile_detail' t.author.username %}">{{ t.author.username }}</a>
+                        · {{ t.created_at|date:"d.m.Y H:i" }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty">У цій категорії ще немає тем.</p>
+    {% endif %}
+</div>
+
+<a href="{% url 'category_list' %}" class="muted">← Назад до категорій</a>
+
+{% endblock %}

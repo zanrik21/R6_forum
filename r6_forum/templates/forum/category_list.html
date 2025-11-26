@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>КАТЕГОРІЇ</h2>
+
+        {# Кнопка "Нова тема" — доступна для всіх авторизованих #}
+        {% if user.is_authenticated %}
+            <a href="{% url 'topic_create' %}" class="btn-outline">
+                + НОВА ТЕМА
+            </a>
+        {% endif %}
+    </div>
+
+    {% if categories %}
+        <ul class="list" style="margin-top:10px;">
+            {% for c in categories %}
+                <li style="display:flex; justify-content:space-between; align-items:center;">
+
+                    <div>
+                        <a href="{% url 'topic_list' c.pk %}">
+                            <strong style="color:#ffc94a;">{{ c.name }}</strong>
+                        </a><br>
+                        <span class="muted">Тем: {{ c.topics_count }}</span>
+                    </div>
+
+                    {# Кнопка видалення категорії — ТІЛЬКИ ДЛЯ АДМІНА / МОДЕРА #}
+                    {% if user.is_staff or user.is_superuser %}
+                        <form method="post"
+                              action="{% url 'category_delete' c.pk %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="btn-danger"
+                                    style="padding:6px 12px; font-size:11px;">
+                                Видалити категорію
+                            </button>
+                        </form>
+                    {% endif %}
+
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty" style="margin-top:10px;">
+            Ще немає жодної категорії.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

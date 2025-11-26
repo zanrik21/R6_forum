@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card" style="max-width: 420px; margin: 40px auto;">
+    <div class="card-title">Вхід</div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <label>Ім'я користувача:</label>
+        {{ form.username }}
+
+        <br><br>
+
+        <label>Пароль:</label>
+        {{ form.password }}
+
+        <br><br>
+
+        <button type="submit" class="btn" style="width:100%;">Увійти</button>
+    </form>
+
+    <p class="muted" style="margin-top: 12px; font-size: 13px;">
+        Немає акаунта?
+        <a href="{% url 'register' %}">Зареєструватися</a>
+    </p>
+</div>
+
+{% endblock %}

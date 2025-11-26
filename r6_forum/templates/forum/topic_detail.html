@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div class="card-title">
+        {{ topic.title }}
+    </div>
+    <p class="muted">
+        Категорія: {{ topic.category.name }}<br>
+        Автор:
+        <a href="{% url 'profile_detail' topic.author.username %}">
+            {{ topic.author.username }}
+        </a>
+
+        <span class="mini-badge
+            {% if topic.author_is_banned %}
+                mini-banned
+            {% elif topic.author.profile.show_admin_status and topic.author.is_superuser %}
+                mini-admin
+            {% elif topic.author.profile.show_admin_status and topic.author.is_staff %}
+                mini-mod
+            {% else %}
+                mini-player
+            {% endif %}">
+            {% if topic.author_is_banned %}
+                BANNED
+            {% elif topic.author.profile.show_admin_status and topic.author.is_superuser %}
+                ADMIN
+            {% elif topic.author.profile.show_admin_status and topic.author.is_staff %}
+                MOD
+            {% else %}
+                PLAYER
+            {% endif %}
+        </span>
+
+        · {{ topic.created_at|date:"d.m.Y H:i" }}
+    </p>
+</div>
+
+<div class="card">
+    <h3>Пости</h3>
+
+    {% if posts %}
+        {% for p in posts %}
+            <div class="post" style="margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #1b1f28;">
+
+                <!-- Шапка поста: аватар + нік + онлайн-точка + бейдж + дата -->
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:8px;">
+
+                    {% if p.author.profile.avatar %}
+                        <img src="{{ p.author.profile.avatar.url }}"
+                             alt="avatar"
+                             style="width:55px; height:55px; border-radius:50%;
+                                    object-fit:cover;
+                                    border:3px solid var(--accent);
+                                    box-shadow:0 0 10px rgba(255,200,70,.35);">
+                    {% else %}
+                        <div style="width:55px; height:55px; border-radius:50%;
+                                    background:#1a1d25;
+                                    display:flex; align-items:center; justify-content:center;
+                                    font-size:22px; font-weight:700;
+                                    color:var(--accent);
+                                    border:3px solid var(--accent);
+                                    box-shadow:0 0 10px rgba(255,200,70,.35);">
+                            {{ p.author.username|first|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div style="line-height:1.3;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <a href="{% url 'profile_detail' p.author.username %}"
+                               style="font-size:16px; font-weight:600;">
+                                {{ p.author.username }}
+                            </a>
+
+                            {# онлайн-точка #}
+                            {% if p.author_is_online %}
+                                <span title="Online"
+                                      style="width:10px; height:10px; border-radius:50%;
+                                             background:#38ff8b; box-shadow:0 0 8px #38ff8b;">
+                                
+                            {% endif %}
+                        </div>
+
+                        <span class="mini-badge
+                            {% if p.author_is_banned %}
+                                mini-banned
+                            {% elif p.author.profile.show_admin_status and p.author.is_superuser %}
+                                mini-admin
+                            {% elif p.author.profile.show_admin_status and p.author.is_staff %}
+                                mini-mod
+                            {% else %}
+                                mini-player
+                            {% endif %}">
+                            {% if p.author_is_banned %}
+                                BANNED
+                            {% elif p.author.profile.show_admin_status and p.author.is_superuser %}
+                                ADMIN
+                            {% elif p.author.profile.show_admin_status and p.author.is_staff %}
+                                MOD
+                            {% else %}
+                                PLAYER
+                            {% endif %}
+                        </span>
+                        <br>
+
+                        <span class="muted" style="font-size:12px;">
+                            {{ p.created_at|date:"d.m.Y H:i" }}
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- Тіло поста -->
+                <div style="margin-top:6px;">
+                    {{ p.content|linebreaksbr }}
+                </div>
+
+                <!-- Кнопки дій -->
+                <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+
+                    {# автор поста – редагувати + видалити #}
+                    {% if user.is_authenticated and user == p.author %}
+                        <a href="{% url 'post_edit' p.pk %}" class="btn-outline">
+                            Редагувати
+                        </a>
+
+                        <form method="post" action="{% url 'post_delete' p.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger">Видалити</button>
+                        </form>
+                    {% endif %}
+
+                    {# адмін / модератор – видалити чужий пост #}
+                    {% if user.is_staff or user.is_superuser %}
+                        {% if user != p.author %}
+                            <form method="post" action="{% url 'post_delete' p.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger">Видалити (адмін)</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">Ще немає постів.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    {% if user.is_authenticated %}
+        <h3>Додати відповідь</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Надіслати</button>
+        </form>
+    {% else %}
+        <p class="empty">
+            Щоб писати відповіді, потрібно
+            <a href="{% url 'login' %}">увійти</a>.
+        </p>
+    {% endif %}
+
+    {# Видалення теми: автор теми АБО адмін / модератор #}
+    {% if user.is_authenticated %}
+        {% if user == topic.author or user.is_staff or user.is_superuser %}
+            <hr style="margin:14px 0; border:none; border-top:1px solid #1b1f28;">
+            <form method="post" action="{% url 'topic_delete' topic.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger">Видалити тему</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+
+<a href="{% url 'topic_list' topic.category.pk %}" class="muted">← Назад до списку тем</a>
+
+{% endblock %}

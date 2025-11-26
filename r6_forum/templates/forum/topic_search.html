@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Пошук тем</div>
+    </div>
+
+    <form method="get" style="margin-bottom:12px;">
+        <label for="q">Запит:</label>
+        <input type="text" id="q" name="q" value="{{ q }}" placeholder="Введи назву теми...">
+    </form>
+
+    {% if q and topics %}
+        <ul class="list">
+            {% for t in topics %}
+                <li>
+                    <a href="{% url 'topic_detail' t.pk %}">{{ t.title }}</a><br>
+                    <span class="muted">
+                        Категорія: {{ t.category.name }} ·
+                        Автор: <a href="{% url 'profile_detail' t.author.username %}">{{ t.author.username }}</a> ·
+                        {{ t.created_at|date:"d.m.Y H:i" }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif q %}
+        <p class="empty">Нічого не знайдено за запитом «{{ q }}».</p>
+    {% else %}
+        <p class="empty">Введи запит, щоб побачити результати.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

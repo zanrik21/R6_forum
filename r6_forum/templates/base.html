@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>R6 Forum</title>
+
+    <style>
+        :root {
+            --bg-main: #050608;
+            --bg-card: #101218;
+            --bg-card-alt: #181b20;
+            --accent: #ffc94a;
+            --text-main: #f7f7f7;
+            --text-muted: #8b92a0;
+            --danger: #ff5555;
+            --border-soft: #252832;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; }
+
+        header {
+            border-bottom: 1px solid var(--border-soft);
+            background: #070910;
+        }
+
+        .nav-bar {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 52px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .logo-text,
+        .logo-text:hover,
+        .logo-text:focus {
+            text-decoration: none !important;
+        }
+        .logo-text { display:flex; align-items:center; gap:14px;}
+
+        .nav-links a {
+            margin-right: 14px;
+            font-size: 14px;
+        }
+
+        .nav-search {
+            flex: 1;
+            max-width: 380px;
+        }
+
+        .nav-search-input {
+            width: 100%;
+            background: var(--bg-card-alt);
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            padding: 6px 12px;
+            color: var(--text-main);
+            font-size: 13px;
+        }
+        .nav-search-input::placeholder { color: var(--text-muted); }
+
+        .nav-right {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .username { color: var(--text-muted); }
+
+        .container {
+            max-width: 1100px;
+            margin: 24px auto 40px;
+            padding: 0 20px;
+            min-height: 60vh;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .card-title { font-size: 18px; text-transform: uppercase;}
+
+        ul.list { list-style: none; }
+        ul.list li {
+            border-bottom: 1px solid #1b1f28;
+            padding: 9px 0;
+        }
+        ul.list li:last-child { border-bottom:none;}
+
+        .muted { color:var(--text-muted); font-size:13px;}
+        .empty { color:var(--text-muted); font-style:italic;}
+
+        .btn {
+            padding:7px 14px;
+            border-radius:4px;
+            border:1px solid var(--accent);
+            color:#000;
+            background:var(--accent);
+            font-weight:600;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            cursor:pointer;
+        }
+        .btn-outline { background:transparent; color:var(--accent);}
+        .btn-danger { border-color:var(--danger); color:var(--danger); background:transparent;}
+
+        input, textarea, select {
+            width:100%;
+            background:var(--bg-card-alt);
+            border-radius:4px;
+            border:1px solid var(--border-soft);
+            padding:8px 10px;
+            color:var(--text-main);
+            font-size:14px;
+        }
+        label {
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            color:var(--text-muted);
+        }
+        textarea { min-height:100px;}
+
+        .mini-badge {
+            display:inline-block;
+            margin-left:6px;
+            padding:1px 6px;
+            border-radius:999px;
+            font-size:10px;
+            text-transform:uppercase;
+            border:1px solid;
+        }
+        .mini-admin {border-color:#ff6363;color:#ff9d9d;background:rgba(255,99,99,.12);}
+        .mini-mod {border-color:#64b5ff;color:#b0d8ff;background:rgba(100,181,255,.1);}
+        .mini-banned {border-color:#ff4c6a;color:#ffbac7;background:rgba(255,76,106,.12);}
+        .mini-player {border-color:#7e8594;color:#c5cad8;background:rgba(126,133,148,.16);}
+
+        .messages { margin-bottom:16px; list-style:none;}
+        .msg {padding:8px 10px;border-radius:6px;font-size:13px;border:1px solid;margin-bottom:6px;}
+        .msg-success {background:#0f2214;border-color:#1f3b27;color:#c9f7d3;}
+        .msg-error {background:#2b1316;border-color:#5a2429;color:#ffd0d6;}
+        .msg-warning {background:#2b2413;border-color:#5a4b1f;color:#ffe9b8;}
+        .msg-info {background:#101925;border-color:#23334a;color:#d2e0ff;}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-bar">
+
+        <div class="nav-left">
+            <!-- ЛОГО -->
+            <a href="{% url 'category_list' %}" class="logo-text">
+                <span style="
+                    border-left: 4px solid var(--accent);
+                    padding: 4px 10px 4px 14px;
+                    font-size: 16px;
+                    font-weight: 900;
+                    letter-spacing: 0.14em;
+                    background: rgba(255,201,74,0.05);
+                ">R6</span>
+
+                <span style="
+                    font-size: 18px;
+                    font-weight: 900;
+                    letter-spacing: 0.52em;
+                    text-transform: uppercase;
+                ">FORUM</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="{% url 'user_list' %}">Користувачі</a>
+
+                {# Приклад: якщо треба показувати якісь адмін-посилання #}
+                {% if user.is_staff or user.is_superuser %}
+                    {# тут можна додати ще лінки для адмінів #}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="nav-search">
+            <form method="get" action="{% url 'topic_search' %}">
+                <input type="text" name="q" class="nav-search-input" placeholder="Пошук тем...">
+            </form>
+        </div>
+
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+                <span class="username">
+                    Привіт, <a href="{% url 'profile_detail' user.username %}">{{ user.username }}</a>
+                </span>
+                <a href="{% url 'logout' %}">Вийти</a>
+            {% else %}
+                <a href="{% url 'login' %}">Увійти</a>
+            {% endif %}
+        </div>
+
+    </div>
+</header>
+
+<div class="container">
+    {% if messages %}
+    <ul class="messages">
+        {% for m in messages %}
+            <li class="msg msg-{{ m.tags|default:'info' }}">{{ m }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

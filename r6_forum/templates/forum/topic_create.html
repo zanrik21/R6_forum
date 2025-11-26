@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div class="card-title">Створити тему</div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Назва теми:</label>
+        {{ form.title }}
+
+        <br><br>
+
+        {% if can_create_category %}
+            <label>Створити нову категорію (лише адмін/модер):</label>
+            {{ form.category_name }}
+            <br><br>
+        {% endif %}
+
+        <label>Категорія:</label>
+        <select name="category">
+            {% for c in categories %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label>Перший пост:</label>
+        {{ post_form.content }}
+
+        <br><br>
+        <button type="submit" class="btn">Створити</button>
+    </form>
+</div>
+
+{% endblock %}

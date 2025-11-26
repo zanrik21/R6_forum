@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <h2>Редагування профілю</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Аватар:</label>
+        {{ form.avatar }}
+
+        <br><br>
+        <label>Bio:</label>
+        {{ form.bio }}
+
+        <br><br>
+        <label>Ранг:</label>
+        {{ form.rank }}
+
+        <br><br>
+
+        {# ⚠️ ТІЛЬКИ ДЛЯ АДМІНІВ + МОДЕРІВ! #}
+        {% if user.is_staff or user.is_superuser %}
+            <label>Показувати що я адмін / модератор:</label>
+            {{ form.show_admin_status }}
+            <br><br>
+        {% endif %}
+
+        <button type="submit" class="btn">Зберегти</button>
+    </form>
+</div>
+
+{% endblock %}
